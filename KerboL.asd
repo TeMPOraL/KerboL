@@ -26,5 +26,11 @@ It contains (or rather, will contain):
   ;; test link
   
   ;; components
-
-  )
+  :components
+  ((:module "src"
+            :components ((:file "package")
+                         (:module "compiler"
+                                  :components (("compiler"
+                                                "printer")))
+                         (:module "remote"
+                                  :components (()))))))
