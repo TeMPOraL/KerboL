@@ -1,0 +1,200 @@
+;;; SOME INITIAL ATTEMPT AT LISPIFYING KerbalScript
+
+
+;; SET countdown TO 10.
+;; PRINT "Counting down:".
+;; UNTIL countdown = 0 {
+;;     PRINT "..." + countdown.
+;;     SET countdown TO countdown - 1.
+;;     WAIT 1. // pauses the script here for 1 second.
+;; }
+
+(set countdown 10)
+(prn "Counting down:")
+(until (= 0 countdown)
+       (prn "..." countdown)
+       (decf countdown)
+       (wait 1))
+
+;; PRINT "Main throttle up.  2 seconds to stabalize it.".
+;; LOCK THROTTLE TO 1.0.   // 1.0 is the max, 0.0 is idle.
+;; LOCK STEERING TO UP.
+;; WAIT 2. // give throttle time to adjust.
+;; UNTIL SHIP:MAXTHRUST > 0 {
+;;     WAIT 0.5. // pause half a second between stage attempts.
+;;     PRINT "Stage activated.".
+;;     STAGE. // same as hitting the spacebar.
+;; }
+;; WAIT UNTIL SHIP:ALTITUDE > 70000. // pause here until ship is high up.
+
+(prn "Main throttle up.  2 seconds to stabilize it.")
+(lock :THROTTLE 1.0
+      :STEERING :UP)
+
+(wait 2)
+(until (> (maxthrust *ship*) 0)
+       (wait 0.5)
+       (prn "Stage activated.")
+       (stage))
+
+(wait-until (> (altitude *ship*)
+               7000))
+
+;; WHEN STAGE:LIQUIDFUEL < 0.001 THEN {
+;;     PRINT "No liquidfuel.  Attempting to stage.".
+;;     STAGE.
+;;     PRESERVE.
+;; }
+(when (< 0.001 (liquidfuel *stage*))
+  (prn "No liquidfuel.  Attempting to stage.")
+  (stage)
+  (preserve))
+
+
+;; WHEN SHIP:ALTITUDE > 10000 THEN {
+;;     PRINT "Starting turn.  Aiming to 45 degree pitch.".
+;;     LOCK STEERING TO HEADING(90,45). // east, 45 degrees pitch.
+;; }
+;; WHEN SHIP:ALTITUDE > 40000 THEN {
+;;     PRINT "Starting flat part.  Aiming to horizon.".
+;;     LOCK STEERING TO HEADING(90,0). // east, horizontal.
+;; }
+
+(when ((> (altitude *ship*) 10000)
+         (prn "Starting turn.  Aiming to 45 degree pitch.")
+         (lock :STEERING (heading +east+ 45)))
+      ((> (altitude *ship*) 40000)
+         (prn "Starting flat part.  Aiming to horizon.")
+         (lock :STEERING (heading +east+ 90))))
+
+
+;; LOCK STEERING TO R(0,0,-90) + HEADING(90,90).
+;; LOCK THROTTLE TO 1.
+;; STAGE.
+;; UNTIL SHIP:ALTITUDE > 20000 {
+;;     IF SHIP:ALTITUDE > 10000 {
+;;         LOCK STEERING TO R(0,0,-90) + HEADING(90,45).
+;;     }
+;;     IF STAGE:LIQUIDFUEL < 0.1 {
+;;         STAGE.
+;;     }
+;; }
+;; LOCK THROTTLE TO 0.
+;; WAIT UNTIL FALSE.
+
+(lock :STEERING (+ #(0 0 -90)
+                   (heading +east+ 90))
+      :THROTTLE 1)
+(stage)
+(until (> (altitude *ship*) 20000)
+       (if (> (altitude *ship*) 10000)
+           (lock :STEERING (+ #(0 0 -90)
+                              (heading +east+ 45))))
+       (if (< (liquidfuel *stage*) 0.1)
+           (stage)))
+;;; or
+(until (cond ((> (altitude *ship*) 20000)
+              (lock :STEERING (+ #(0 0 -90)
+                                 (heading +east+ 90))))
+             ((< (liquidfuel *stage*) 0.1)
+              (stage))))
+
+(lock :throttle 0)
+(wait-for nil)
+
+
+;; WHEN STAGE:LIQUIDFUEL < 0.1 THEN {
+;;     STAGE.
+;;     PRESERVE.
+;; }
+;; SET thrott TO 1.
+;; SET dthrott TO 0.
+;; LOCK THROTTLE TO thrott.
+;; LOCK STEERING TO R(0,0,-90) + HEADING(90,90).
+;; STAGE.
+;; WHEN SHIP:ALTITUDE > 1000 THEN {
+;;     SET g TO KERBIN:MU / KERBIN:RADIUS^2.
+;;     LOCK accvec TO SHIP:SENSORS:ACC - SHIP:SENSORS:GRAV.
+;;     LOCK gforce TO accvec:MAG / g.
+;;     LOCK dthrott TO 0.05 * (1.2 - gforce).
+
+;;     WHEN SHIP:ALTITUDE > 10000 THEN {
+;;         LOCK dthrott TO 0.05 * (2.0 - gforce).
+
+;;         WHEN SHIP:ALTITUDE > 20000 THEN {
+;;             LOCK dthrott TO 0.05 * (4.0 - gforce).
+
+;;             WHEN SHIP:ALTITUDE > 30000 THEN {
+;;                 LOCK dthrott TO 0.05 * (5.0 - gforce).
+;;             }
+;;         }
+;;     }
+;; }
+;; UNTIL SHIP:ALTITUDE > 40000 {
+;;     SET thrott to thrott + dthrott.
+;;     WAIT 0.1.
+;; }
+
+(when (< (liquidfuel *stage*) 0.1)
+  (stage)
+  (preserve))
+
+(set thrott 1
+     dthrott 0)
+
+(lock :THROTTLE thrott
+      :STEERING (+ #(0 0 -90)
+                   (heading +east+ 90)))
+(stage)
+
+(when (> (altitude *ship*) 1000)
+  (set g (/ (mu *kerbin*) (square (radius *kerbin*))))
+  (lock accvec (- (acc (sensors *ship*))
+                  (grav (sensors *ship*)))
+        gforce (/ (mag accvec) g)
+        dthrott (* 0.05 (- 1.2 gforce)))
+  
+  (when* ((> (altitude *ship*) 10000)
+          (lock dthrott (* 0.05 (- 2.0 gforce))))
+         ((> (altitude *ship*) 20000)
+          (lock dthrott (* 0.05 (- 4.0 gforce))))
+         ((> (altitude *ship*) 30000)
+          (lock dthrott (* 0.05 (- 5.0 gforce)))))
+
+  (until (> 40000 (altitude *ship*))
+         (set thrott (+ thrott dthrott))
+         (wait 0.1)))
+
+
+;; // Only if you expected to get
+;; // exactly 1 such part, no more, no less.
+;; SET myPart TO SHIP:PARTSTAGGED("my nametag here")[0].
+
+;; // Handling the case of more than
+;; // one part with the same nametag,
+;; // or the case of zero parts with
+;; // the name:
+;; SET allSuchParts TO SHIP:PARTSDUBBED("my nametag here").
+
+;; // OR
+
+;; SET allSuchParts TO SHIP:PARTSTAGGED("my nametag here").
+
+;; // Followed by using the list returned:
+;; FOR onePart IN allSuchParts {
+;;   // do something with onePart here.
+;; }
+
+(set myPart (elt (parts-tagged *ship* "my nametag here") 0))
+(set myPart (first (parts-tagged *ship* "my nametag here")))
+(set myPart (car (parts-tagged *ship* "my nametag here"))) ;if we have a way to do CDR on a list
+
+
+(set allSuchParts (parts-tagged *ship* "my nametag here"))
+
+(mapc (lambda (onePart)
+        ;; do something with onePart here
+        )
+      allSuchParts)
+
+;; DECLARE variable. //some stuff.
