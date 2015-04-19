@@ -1,4 +1,5 @@
 ;;; KerboL.asd
+
 (asdf:defsystem #:KerboL
   :serial t
 
@@ -10,7 +11,9 @@
 It contains (or rather, will contain):
 - a Telnet client connecting to kOS instance, allowing for a limited REPL,
 - a way to interactively operate KSP from Lisp REPL, leveraging the power of SLIME,
-- a KerboL to KerboScript compiler, allowing one to write kOS scripts in a Lisp."
+- a KerboL to KerboScript compiler, allowing one to write kOS scripts in a Lisp.
+
+Compiler code bases heavily on ParenScript, a CL to JavaScript compiler."
 
   :license "TBD"
   :homepage "https://github.com/TeMPOraL/KerboL"
@@ -30,7 +33,8 @@ It contains (or rather, will contain):
   ((:module "src"
             :components ((:file "package")
                          (:module "compiler"
-                                  :components (("compiler"
-                                                "printer")))
-                         (:module "remote"
-                                  :components (()))))))
+                                  :components ((:file "ks-printables-package")
+                                               (:file "special-forms")
+                                               (:file "compiler")
+                                               (:file "printer")))
+  ))))

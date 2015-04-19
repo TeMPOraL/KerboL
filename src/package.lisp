@@ -2,4 +2,7 @@
 
 (defpackage #:KerboL
   (:use #:cl
-        #:alexandria))
+        #:alexandria)
+
+  (:export #:kl-compile
+           #:kl-print))
