@@ -1,0 +1,289 @@
+#+title: Language Features
+#+startup: hidestars
+
+#+todo: TODO COMPILES PRINTS COMPILES-AND-PRINTS | DONE
+
+* Common Lisp constructs
+
+** Structure
+*** TODO PROGN
+    A block of expressions or statements.
+
+** Variables
+
+*** TODO DEFVAR
+    Compiles to one ~DECLARE GLOBAL~ statements.
+    #+BEGIN_SRC lisp
+      (defvar identifier expression "comment")
+
+      ;; GLOBAL identifier TO expression. //comment
+
+    #+END_SRC
+
+*** TODO SETQ -> SET
+    Compiles to one or more ~SET~ statements.
+    #+BEGIN_SRC lisp
+      (setq x expr1
+            y expr2)
+
+      ;; SET x TO expr1.
+      ;; SET y TO expr2.
+
+    #+END_SRC
+
+*** TODO SETF -> SET (???)
+    Not sure yet.
+    For now, equivalent to ~SETQ~.
+
+*** TODO LET
+    Establishes local variable bindings.
+
+    #+BEGIN_SRC lisp
+      (let ((x (foo))
+            (y (bar)))
+        (prn x y))
+
+      ;; {
+      ;;     LOCAL x IS foo.
+      ;;     LOCAL y IS bar.
+      ;;     PRINT x + y.
+      ;; }
+    #+END_SRC
+
+** Functions
+
+*** TODO LAMBDA
+    Establishes an anonymous function.
+
+*** TODO DEFUN
+    Defines a new function.
+
+    #+BEGIN_SRC lisp
+      (defun foo (a b)
+        (prn a b))
+
+      ;; FUNCTION foo {
+      ;;    PARAMETER a.
+      ;;    PARAMETER b.
+      ;;
+      ;;    PRINT a + b.
+      ;; }
+
+    #+END_SRC
+
+*** TODO FLET
+
+*** TODO LABELS
+
+** Iteration
+
+*** TODO DO
+
+*** TODO DOLIST
+
+*** TODO DOTIMES
+
+*** TODO MAPCAR
+
+** Control flow
+*** TODO RETURN
+    Equivalent of break (inside a loop).
+
+    #+BEGIN_SRC lisp
+      (return)
+
+      ;; BREAK.
+    #+END_SRC
+
+** Structures and classes
+
+*** TODO WITH-SLOTS
+
+    #+BEGIN_SRC lisp
+      (with-slots (x y z) vec
+        (prn "X: " x ", Y: " y ", Z: " z))
+
+      ;; PRINT "X: " + vec:x + ", Y: " + vec:y + ", Z: " + vec:z.
+    #+END_SRC
+
+** Math
+
+*** TODO INCF
+    Increments variable by value (default: 1).
+
+    #+BEGIN_SRC lisp
+      (incf x)
+      (incf y 5)
+
+      ;; SET x TO x + 1.
+      ;; SET y TO y + 5.
+    #+END_SRC
+
+*** TODO DECF
+    Decrements variable by value (default: 1).
+
+    #+BEGIN_SRC lisp
+      (decf x)
+      (decf y 5)
+
+      ;; SET x TO x - 1.
+      ;; SET y TO y - 5.
+    #+END_SRC
+
+* KerboScript-specific constructs
+
+** TODO @ - suffix expression
+   #+BEGIN_SRC lisp
+     (prn (@ ship velocity orbit x))
+
+     ;;; PRINT ship:velocity:orbit:x.
+   #+END_SRC
+
+   Supports method suffixes.
+   #+BEGIN_SRC lisp
+     (prn (@ x (length)))
+     (@ x (remove 0))
+
+     ;; PRINT x:length().
+     ;; x:remove(0).
+   #+END_SRC
+
+** TODO PRN - PRINT
+
+   #+BEGIN_SRC lisp
+     (prn "Hello world!")
+     (prn "Hello world!" (/ 123 456) " :).")
+
+     ;; PRINT "Hello world!".
+     ;; PRINT "Hello world! " + 123/456 + " :).".
+   #+END_SRC
+   
+   TODO maybe abuse cl-interpol a bit?
+   #+BEGIN_SRC lisp
+     (prn "Apoapsis at: $(APO), periapsis at: $PERI):).")
+
+     ;; PRINT "Apoapsis at: " + APO + ", periapsis at: " + PERI + " :).".
+   #+END_SRC
+
+   TODO maybe a keyword variant?
+   #+BEGIN_SRC lisp
+     (prn "Hello" " World!" :at (5 10))
+
+     ;; PRINT "Hello" + " World!" AT(5, 10).
+   #+END_SRC
+
+
+** TODO LOCK - LOCK
+   Lock one or multiple variables to expressions.
+   #+BEGIN_SRC lisp
+     (lock x (+ foo 1)
+           y (* x x))
+
+     ;; LOCK x TO foo + 1.
+     ;; LOCK y TO x * x.
+   #+END_SRC
+
+** TODO LOCK-GLOBAL - LOCK
+   Globally lock one or multiple variables to expressions.
+   #+BEGIN_SRC lisp
+     (lock-global x (+ foo 1)
+                  y (* x x))
+
+     ;; GLOBAL LOCK x TO foo + 1.
+     ;; GLOBAL LOCK y TO x * x.
+   #+END_SRC
+
+
+** TODO LOCK-LOCAL - LOCK
+   #+BEGIN_SRC lisp
+     (lock-local x (+ foo 1)
+                 y (* x x))
+
+     ;; LOCAL LOCK x TO foo + 1.
+     ;; LOCAL LOCK y TO x * x.
+   #+END_SRC
+
+** TODO UNLOCK - UNLOCK
+   #+BEGIN_SRC lisp
+     (unlock x y z)
+
+     ;; UNLOCK x.
+     ;; UNLOCK y.
+     ;; UNLOCK z.
+   #+END_SRC
+
+** TODO UNLOCK-ALL
+   #+BEGIN_SRC lisp
+     (unlock-all)
+
+     ;; UNLOCK ALL.
+   #+END_SRC
+
+** TODO WITH-LOCKS
+   #+BEGIN_SRC lisp
+     (with-locks ((x (+ foo 1))
+                  (y (* x x)))
+       (prn x y))
+
+     ;; LOCK x TO foo + 1.
+     ;; LOCK y TO x * x.
+     ;;
+     ;; PRINT x + y.
+     ;;
+     ;; UNLOCK y.
+     ;; UNLOCK x.
+   #+END_SRC
+
+** TODO WITH-GLOBAL-LOCKS
+   #+BEGIN_SRC lisp
+     (with-global-locks ((x (+ foo 1))
+                  (y (* x x)))
+       (prn x y))
+
+     ;; GLOBAL LOCK x TO foo + 1.
+     ;; GLOBAL LOCK y TO x * x.
+     ;;
+     ;; PRINT x + y.
+     ;;
+     ;; UNLOCK y.
+     ;; UNLOCK x.
+   #+END_SRC
+
+** TODO WITH-LOCAL-LOCKS
+   #+BEGIN_SRC lisp
+     (with-local-locks ((x (+ foo 1))
+                  (y (* x x)))
+       (prn x y))
+
+     ;; LOCAL LOCK x TO foo + 1.
+     ;; LOCAL LOCK y TO x * x.
+     ;;
+     ;; PRINT x + y.
+     ;;
+     ;; UNLOCK y.
+     ;; UNLOCK x.
+   #+END_SRC
+
+** TODO TRIGGER-WHEN -> WHEN .. THEN
+
+** TODO TRIGGER-UNLESS -> WHEN .. THEN
+
+** TODO TRIGGER-ON -> ON
+   Set up a trigger to run when a boolean variable changes state.
+
+   #+BEGIN_SRC lisp
+     (on SAS
+         (prn "SAS system has been toggled."))
+
+     (on AG1
+         (prn "Action Group 1 activated.")
+         (preserve))
+
+     ;; ON SAS PRINT "SAS system has been toggled.".
+     ;;
+     ;; ON AG1 {
+     ;; PRINT "Action Group 1 activated.".
+     ;; PRESERVE.
+     ;; }
+
+   #+END_SRC

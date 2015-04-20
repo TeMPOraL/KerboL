@@ -5,4 +5,8 @@
         #:alexandria)
 
   (:export #:kl-compile
-           #:kl-print))
+           #:kl-print
+
+           ;; language
+           #:prn
+           ))
