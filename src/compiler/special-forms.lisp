@@ -22,7 +22,7 @@
 
 
 ;;; utils
-(defun mapcan-pairwise (function list)
+(defun mapcan-pairwise (function list)  ;FIXME is this really mapcan? Naming stuff after 02:00 AM is a bad idea.
   (loop for (first-elt second-elt) on list by #'cddr collect
        (funcall function first-elt second-elt)))
 
@@ -55,10 +55,14 @@
                      `(ks-prn:lock-local ,var ,(kl-compile-expression expr)))
                    mappings))
 
-(define-special-statement-operator defvar (&rest mappings)
+(define-special-statement-operator unlock (&rest variables)
   (mapcan-pairwise (lambda (var expr)
-                     `(ks-prn:declare-global ,var ,(kl-compile-expression expr)))
+                     `(ks-prn:lock-global ,var ,(kl-compile-expression expr)))
                    mappings))
+
+(define-special-statement-operator defvar (var expr &optional doc)
+  `((ks-prn:declare-global ,var ,(kl-compile-expression expr))
+    ,(when doc `(ks-prn:comment-inline ,doc))))
 
 (define-special-statement-operator progn (&rest forms)
   (mapcar #'kl-compile forms))

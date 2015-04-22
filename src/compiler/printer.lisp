@@ -7,6 +7,8 @@
 
 (defvar *kl-print-pretty* t "Pretty-print the resulting KerboScript")
 
+(defparameter *kl-pp-indent-num-spaces* 4)
+
 (defvar *kl-stream* nil "Output stream for KerboScript printing.")
 
 (defgeneric kl-print (form)
@@ -14,50 +16,6 @@
 
 (defgeneric kl-print% (primitive args)
   (:documentation "Support printer for complex forms of type: (`PRIMITIVE' `ARGS')"))
-
-(defmacro defprinter (primitive args &body body)
-  "Helper macro defining a `KL-PRINT%' method for one or more `PRIMITIVE's. Lifted pretty much straight from Parenscript."
-  (if (listp primitive)
-      (cons 'progn (mapcar (lambda (p)
-                             `(defprinter ,p ,args ,@body))
-                           primitive))
-      (let ((pargs (gensym)))
-        `(defmethod kl-print% ((op (eql ',primitive)) ,pargs)
-           (declare (ignorable op))
-           (destructuring-bind ,args
-               ,pargs
-             ,@(loop for x in body collect
-                    (if (or (characterp x)
-                            (stringp x))
-                        (list 'kl-print x) ;FIXME replace it with a proper printing form (PSW-equivalent)
-                        x)))))))
-
-(defmethod kl-print ((form (eql t)))
-  (write-string "true" *kl-stream*))
-
-(defmethod kl-print ((form null))
-  (write-string "false" *kl-stream*))
-
-(defmethod kl-print ((num integer))
-  (format *kl-stream* "~D" num))
-
-(defmethod kl-print ((num float))
-  (format *kl-stream* "~F" num))
-
-(defmethod kl-print ((num ratio))
-  (format *kl-stream* "~D/~D" (numerator num) (denominator num)))
-
-(defmethod kl-print ((str string))
-  (prin1 str *kl-stream*))
-
-(defmethod kl-print ((s symbol))
-  (if (keywordp s)
-      (kl-print (string-downcase s))    ;TODO some specific handling for keywords?
-      (write-string (symbol->ks-string s) *kl-stream*)))
-
-(defmethod kl-print ((form cons))
-  ;; dispatch to a specific printer
-  (kl-print% (car cons) (cdr cons)))
 
 (defun symbol->ks-string (symbol)
   "Convert `SYMBOL' to a proper KerboScript term. Apply following transformations:
@@ -74,3 +32,36 @@
                                          (position c +invalid-ks-token-characters+))
                                    acc))
                   (t (write-char c acc)))))))
+
+(defmacro defprinter (primitive args &body body)
+  "Helper macro defining a `KL-PRINT%' method for one or more `PRIMITIVE's. Lifted pretty much straight from Parenscript."
+  (if (listp primitive)
+      (cons 'progn (mapcar (lambda (p)
+                             `(defprinter ,p ,args ,@body))
+                           primitive))
+      (let ((pargs (gensym)))
+        `(defmethod kl-print% ((op (eql ',primitive)) ,pargs)
+           (declare (ignorable op))
+           (destructuring-bind ,args
+               ,pargs
+             ,@(loop for x in body collect
+                    (if (or (characterp x)
+                            (stringp x))
+                                        ;(list 'kl-print x) ;FIXME replace it with a proper printing form (PSW-equivalent)
+                        (list 'kl-print-objects x)
+                        x)))))))
+
+(defun kl-print-objects (&rest objects)
+  (dolist (obj objects)
+    (typecase obj
+      (string
+       (write-string obj *kl-stream*))
+      (character
+       (write-char obj *kl-stream*)))))
+
+
+;;; pretty printing utilities
+(defun indent-one-column ()
+  (if *kl-print-pretty*
+      (loop repeat *kl-pp-indent-num-spaces* do (kl-print-objects #\Space))
+      (kl-print-objects #\Space)))

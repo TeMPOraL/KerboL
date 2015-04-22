@@ -17,10 +17,15 @@
    #:declare-global
    #:declare-local
    #:declare-parameter
+   #:lock
    #:lock-local
    #:lock-global
+   #:unlock
+   #:unlock-all
    #:prn
 
    ;; other
    #:funcall
+
+   #:comment-inline
 ))
