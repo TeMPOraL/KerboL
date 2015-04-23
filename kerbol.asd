@@ -37,5 +37,6 @@ Compiler code bases heavily on ParenScript, a CL to JavaScript compiler."
                                                (:file "special-forms")
                                                (:file "compiler")
                                                (:file "printer")
-                                               (:file "printers")))
+                                               (:file "printers")
+                                               (:file "compiler-interface")))
   ))))

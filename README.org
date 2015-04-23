@@ -1,0 +1,40 @@
+#+title: KerboL - The Kerbal Lisp Program
+#+startup: hidestars
+
+* Introduction
+
+  KerboL, short for KerboLisp, is a translator from an extended subset
+  of Common Lisp to kOS KerboScript language. It was created out of
+  need for a more powerful language for controlling spacecrafts.
+
+  In the future, I plan to extend the project by adding a Common
+  Lisp - KSP connection that would allow to dynamically update code
+  that's running on rockets straight from Lisp's REPL and give
+  real-time access to telemetry and other relevant information.
+
+* Features
+  TOWRITE
+
+* Use
+  TOWRITE
+
+* Source code
+
+** Relationship with Parenscript
+   If you've ever been doing some web development in Common Lisp, you
+   may have noticed that the source code of KerboLisp compiler feels
+   eerily familiar...
+
+   [[https://common-lisp.net/project/parenscript/][Parenscript]] is a popular (subset of) Common Lisp to JavaScript
+   translator/compiler, that allows you to use power, beauty and
+   consistency of Lisp to drive your web applications.
+
+   Early in the development I realized that I could make KerboLisp
+   translator by basically just tweaking Parenscript - after all,
+   their goals are basically the same, the only difference is the
+   target language. However, just adapting that awesome library
+   wouldn't be the learning experience I was looking for, so instead I
+   decided to use it as a reference. So to be clear: it's not a
+   Parenscript clone, just independent code that was heavily
+   influenced by it and ended up being similar in many places.
+

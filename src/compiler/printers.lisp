@@ -1,6 +1,5 @@
 (in-package #:KerboL)
 
-
 ;;; BASIC PRINTERS
 (defmethod kl-print ((form (eql t)))
   (write-string "true" *kl-stream*))

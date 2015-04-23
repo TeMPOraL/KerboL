@@ -25,6 +25,7 @@
    #:prn
 
    ;; other
+   #:block
    #:funcall
 
    #:comment-inline

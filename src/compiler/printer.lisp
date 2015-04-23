@@ -59,6 +59,18 @@
       (character
        (write-char obj *kl-stream*)))))
 
+;;; interface
+
+(defun kerbol-print (form)
+  (let ((*kl-stream* (make-string-output-stream)))
+    (if (and (listp form)
+             (eq 'ks-prn:block (car form)))
+        (loop for (statement . rest) on (cdr form) do
+             (kl-print statement)
+             (kl-print-objects #\.)
+             (when rest (kl-print-objects #\Newline)))
+        (kl-print form))))
+
 
 ;;; pretty printing utilities
 (defun indent-one-column ()
