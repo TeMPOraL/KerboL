@@ -69,7 +69,8 @@
              (kl-print statement)
              (kl-print-objects #\.)
              (when rest (kl-print-objects #\Newline)))
-        (kl-print form))))
+        (kl-print form))
+    (get-output-stream-string *kl-stream*)))
 
 
 ;;; pretty printing utilities

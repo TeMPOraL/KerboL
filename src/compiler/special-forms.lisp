@@ -36,9 +36,9 @@
 
 ;;; special forms - statements
 (define-special-statement-operator set (&rest mappings)
-  (mapcan-pairwise (lambda (var expr)
-                     `(ks-prn:set ,var ,(kl-compile-expression expr)))
-                   mappings))
+  (cons 'ks-prn:block (mapcan-pairwise (lambda (var expr)
+                                         `(ks-prn:set ,var ,(kl-compile-expression expr)))
+                                       mappings)))
 
 (define-special-statement-operator lock (&rest mappings)
   (mapcan-pairwise (lambda (var expr)
