@@ -8,5 +8,4 @@
            #:kl-print
 
            ;; language
-           #:prn
            ))

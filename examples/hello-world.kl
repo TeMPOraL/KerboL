@@ -1,0 +1,11 @@
+;;; -*- mode: lisp -*-
+
+(defun count-it-down (number)
+  "Perform countdown and stage at the end."
+  (prn "T -" number)
+  (when (= number 0)
+    (prn "LIFTOFF!")
+    (stage)))
+
+(dotimes (i 10)
+  (count-it-down i))

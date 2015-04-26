@@ -33,7 +33,8 @@ Compiler code bases heavily on ParenScript, a CL to JavaScript compiler."
   ((:module "src"
             :components ((:file "package")
                          (:module "compiler"
-                                  :components ((:file "ks-printables-package")
+                                  :components ((:file "utils")
+                                               (:file "ks-printables-package")
                                                (:file "special-forms")
                                                (:file "compiler")
                                                (:file "printer")

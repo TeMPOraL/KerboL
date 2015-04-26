@@ -1,5 +1,7 @@
 (in-package #:KerboL)
 
+(defvar *read-function* #'read)
+
 ;;; compiler
 
 (defun kl-compile (form)

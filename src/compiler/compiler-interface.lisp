@@ -9,8 +9,20 @@
         (with-output-to-string (str)
           (mapcar (lambda (s) (write-string s str)) printed-forms)))))
 
-(defun kl-compile-to-file (file-name &optional (output-file-name (concatenate 'string file-name ".ks")))
+(defun kl-compile-forms (forms)
+  (kerbol-print (kl-compile-statement (cons 'progn forms))))
+
+(defun kl-compile-stream (stream)
+  (let ((eof '#:eof))
+    (loop for form = (funcall *read-function* stream nil eof)
+       until (eq form eof) do (kl-compile-forms form) (newline))))
+
+
+(defun kl-compile-file (file-name &optional (output-file-name (change-filename-extension file-name ".ks")))
   "Compile `FILE-NAME' and print output to `OUTPUT-FILE-NAME'."
-  ;; TODO compile file.
-  
-  )
+  (with-open-file (*kl-stream* output-file-name
+                       :direction :output
+                       :if-exists :supersede)
+    (with-open-file (in file-name
+                        :direction :input)
+      (kl-compile-stream in))))

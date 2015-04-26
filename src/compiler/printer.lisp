@@ -59,6 +59,10 @@
       (character
        (write-char obj *kl-stream*)))))
 
+(defun newline ()
+  "Insert a newline into the output stream."
+  (kl-print-objects #\Newline))
+
 ;;; interface
 
 (defun kerbol-print (form)
@@ -67,7 +71,7 @@
              (eq 'ks-prn:block (car form)))
         (loop for (statement . rest) on (cdr form) do
              (kl-print statement)
-             (kl-print-objects #\.)
+             (kl-print-objects #\.)     ;FIXME get rid of superfluous dot at the end of blocks (maybe separate print-statement and print-expression)
              (when rest (kl-print-objects #\Newline)))
         (kl-print form))
     (get-output-stream-string *kl-stream*)))

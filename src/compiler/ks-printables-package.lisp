@@ -26,6 +26,7 @@
 
    ;; other
    #:block
+   #:sequence
    #:funcall
 
    #:comment-inline

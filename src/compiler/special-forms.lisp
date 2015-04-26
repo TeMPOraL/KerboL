@@ -26,6 +26,12 @@
   (loop for (first-elt second-elt) on list by #'cddr collect
        (funcall function first-elt second-elt)))
 
+(defun flatten-blocks (body)
+  (when body
+    (if (and (listp (car body)) (eq 'ks-prn::block (caar body)))
+        (append (cdr (car body)) (flatten-blocks (cdr body)))
+        (cons (car body) (flatten-blocks (cdr body))))))
+
 ;;; /utils
 
 (defun special-form? (form)
@@ -65,7 +71,7 @@
     ,(when doc `(ks-prn:comment-inline ,doc))))
 
 (define-special-statement-operator progn (&rest forms)
-  (mapcar #'kl-compile forms))
+  (cons 'ks-prn:block (flatten-blocks (mapcar #'kl-compile forms))))
 
 (define-special-statement-operator prn (&rest forms) ;FIXME doesn't work for some magical reason
   (let ((args (mapcar #'kl-compile-expression forms)))

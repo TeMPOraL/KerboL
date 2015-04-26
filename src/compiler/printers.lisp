@@ -54,3 +54,25 @@
 
 (defprinter 'ks-prn:unlock-all ()
   "UNLOCK ALL")
+
+(defprinter 'ks-prn:prn (&rest forms)
+  "PRINT"
+  (dolist (el forms)
+    (kl-print-objects #\Space)
+    (kl-print el)))
+
+(defprinter 'ks-prn:sequence (&rest forms)
+  (newline)
+  (dolist (el forms)
+    (kl-print el)
+    (kl-print-objects #\.)
+    (newline)))
+
+(defprinter 'ks-prn:block (&rest forms)
+  "{"
+  (newline)
+  (dolist (el forms)
+    (kl-print el)
+    (kl-print-objects #\.)
+    (newline))
+  "}")
